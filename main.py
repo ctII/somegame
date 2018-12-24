@@ -33,20 +33,12 @@ class Display(Thread):
         self.screen = screen
 
     def run(self):
-        entities = list()
+        entities = []
         while True:
             try:
-                entityUpdate = self.entityQueue.get(True, 0.01)
+                entities = self.entityQueue.get(True, 0.01)
                 if entityUpdate == ord('q'):
                     break
-                inList = False
-                for i in range(len(entities)):
-                    if entities[i].getUUID() == entityUpdate.getUUID():
-                        inList = True
-                        entities[i] = entityUpdate
-                        break
-                if not inList:
-                    entities.append(entityUpdate)
             except BaseException:
                 pass
             self.screen.clear()
@@ -72,30 +64,30 @@ class Game(Thread):
 
     def run(self):
         self.mainChar = entity(1, 1, 'X')
-        self.entityQueue.put(self.mainChar)
         self.entities.append(self.mainChar)
 
         self.entityTest = entityTest(1, 1)
-        self.entityQueue.put(self.entityTest)
         self.entities.append(self.entityTest)
+
+        self.entityQueue.put(self.entities)
 
         while True:
             try:
-                input = self.inputQueue.get(True, 0.001)
+                input = self.inputQueue.get(True, 0.01)
                 if input == ord('q'):
                     break
                 elif input == ord('w'):
                     self.mainChar.setY(self.mainChar.getY() - 1)
-                    self.entityQueue.put(self.mainChar)
+                    self.entityQueue.put(self.entities)
                 elif input == ord('s'):
                     self.mainChar.setY(self.mainChar.getY() + 1)
-                    self.entityQueue.put(self.mainChar)
+                    self.entityQueue.put(self.entities)
                 elif input == ord('d'):
                     self.mainChar.setX(self.mainChar.getX() + 1)
-                    self.entityQueue.put(self.mainChar)
+                    self.entityQueue.put(self.entities)
                 elif input == ord('a'):
                     self.mainChar.setX(self.mainChar.getX() - 1)
-                    self.entityQueue.put(self.mainChar)
+                    self.entityQueue.put(self.entities)
                 with self.inputQueue.mutex:
                     self.inputQueue.clear()
             except BaseException:

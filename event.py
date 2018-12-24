@@ -2,5 +2,5 @@ import uuid
 
 
 class event:
-    def __init__(self):
-        pass
+    def getName(self):
+        return "event"
