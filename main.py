@@ -15,7 +15,7 @@ def initCurses():
     curses.noecho()
     curses.cbreak()
     screen.keypad(True)
-    #screen.nodelay(1)
+    screen.nodelay(1)
     return screen
 
 
@@ -24,35 +24,6 @@ def terminateCurses(screen):
     screen.keypad(False)
     curses.echo()
     curses.endwin()
-
-
-class Display(Thread):
-    def __init__(self, entityQueue, screen):
-        Thread.__init__(self)
-        self.entityQueue = entityQueue
-        self.screen = screen
-
-    def run(self):
-        entities = []
-        while True:
-            try:
-                entities = self.entityQueue.get(True, 0.01)
-                if entityUpdate == ord('q'):
-                    break
-            except BaseException:
-                pass
-            self.screen.clear()
-            for i in range(0, curses.COLS - 1):
-                self.screen.addstr(0, i, '#')
-                self.screen.addstr(curses.LINES - 1, i, '#')
-            for i in range(0, curses.LINES - 1):
-                self.screen.addstr(i, 0, '#')
-                self.screen.addstr(i, curses.COLS - 1, '#')
-            for e in entities:
-                self.screen.addstr(e.getY(), e.getX(), e.getForm())
-            self.screen.move(curses.LINES - 1, curses.COLS - 1)
-            self.screen.refresh()
-
 
 class Game(Thread):
     def __init__(self, inputQueue, entityQueue, screen):
@@ -108,20 +79,30 @@ def main():
     game = Game(inputQueue, entityQueue, screen)
     game.start()
 
-    display = Display(entityQueue, screen)
-    display.start()
-
     while True:
         input = screen.getch()
         if input is not -1:
-            print(input)
             inputQueue.put(input)
-            if(input == ord('q')):
+            if input == ord('q'):
                 entityQueue.put(input)
                 break
+        try:
+            entities = entityQueue.get(True, 0.01)
+        except BaseException:
+            pass
+        screen.clear()
+        for i in range(0, curses.COLS - 1):
+            screen.addstr(0, i, '#')
+            screen.addstr(curses.LINES - 1, i, '#')
+        for i in range(0, curses.LINES - 1):
+            screen.addstr(i, 0, '#')
+            screen.addstr(i, curses.COLS - 1, '#')
+        for e in entities:
+            screen.addstr(e.getY(), e.getX(), e.getForm())
+        screen.move(curses.LINES - 1, curses.COLS - 1)
+        screen.refresh()
 
     game.join()
-    display.join()
 
     terminateCurses(screen)
 
