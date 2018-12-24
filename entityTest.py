@@ -2,8 +2,8 @@ from entity import entity
 
 
 class entityTest(entity):
-    def __init__(self, posX, posY):
-        entity.__init__(self, posX, posY, 'T')
+    def __init__(self, world, posX, posY):
+        entity.__init__(self, world, posX, posY, 'T')
         self.up = False
 
     def tick(self):

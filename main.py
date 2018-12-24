@@ -5,8 +5,9 @@ import time
 from time import sleep
 import queue
 import uuid
-from entity import entity
 
+from world import world
+from entity import entity
 from entityTest import entityTest
 
 
@@ -32,16 +33,14 @@ class Game(Thread):
         self.entityQueue = entityQueue
         self.inputQueue = inputQueue
         self.screen = screen
-        self.entities = list()
+        self.world = world()
 
     def run(self):
-        self.mainChar = entity(1, 1, 'X')
-        self.entities.append(self.mainChar)
+        self.mainChar = entity(self.world, 1, 1, 'X')
+        self.world.addEntity(self.mainChar)
+        self.world.addEntity(entityTest(self.world, 1, 1))
 
-        self.entityTest = entityTest(1, 1)
-        self.entities.append(self.entityTest)
-
-        self.entityQueue.put(self.entities)
+        self.entityQueue.put(self.world)
 
         while True:
             try:
@@ -50,26 +49,23 @@ class Game(Thread):
                     break
                 elif input == ord('w'):
                     self.mainChar.setY(self.mainChar.getY() - 1)
-                    self.entityQueue.put(self.entities)
                 elif input == ord('s'):
                     self.mainChar.setY(self.mainChar.getY() + 1)
-                    self.entityQueue.put(self.entities)
                 elif input == ord('d'):
                     self.mainChar.setX(self.mainChar.getX() + 1)
-                    self.entityQueue.put(self.entities)
                 elif input == ord('a'):
                     self.mainChar.setX(self.mainChar.getX() - 1)
-                    self.entityQueue.put(self.entities)
                 with self.inputQueue.mutex:
                     self.inputQueue.clear()
             except BaseException:
                 pass
             oldTime = time.time()
             self.tick()
+            self.entityQueue.put(self.world)
             sleep(time.time() - oldTime - 0.05 * -1)
 
     def tick(self):
-        for e in self.entities:
+        for e in self.world.getEntities():
             e.tick()
 
 
@@ -81,6 +77,7 @@ def main():
     game = Game(inputQueue, entityQueue, screen)
     game.start()
 
+    world = None
     while True:
         input = screen.getch()
         if input is not -1:
@@ -88,7 +85,7 @@ def main():
             if input == ord('q'):
                 break
         try:
-            entities = entityQueue.get(True, 0.01)
+            world = entityQueue.get(True, 0.01) #note this is wasting time (GIL, also we are sharing the same accross threads instead of passing copy)
         except BaseException:
             pass
         screen.clear()
@@ -98,7 +95,7 @@ def main():
         for i in range(0, curses.LINES - 1):
             screen.addstr(i, 0, '#')
             screen.addstr(i, curses.COLS - 1, '#')
-        for e in entities:
+        for e in world.getEntities():
             screen.addstr(e.getY(), e.getX(), e.getForm())
         screen.move(curses.LINES - 1, curses.COLS - 1)
         screen.refresh()
