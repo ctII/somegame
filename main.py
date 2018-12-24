@@ -25,6 +25,7 @@ def terminateCurses(screen):
     curses.echo()
     curses.endwin()
 
+
 class Game(Thread):
     def __init__(self, inputQueue, entityQueue, screen):
         Thread.__init__(self)
@@ -71,6 +72,7 @@ class Game(Thread):
         for e in self.entities:
             e.tick()
 
+
 def main():
     screen = initCurses()
     inputQueue = queue.Queue(1000)
@@ -84,7 +86,6 @@ def main():
         if input is not -1:
             inputQueue.put(input)
             if input == ord('q'):
-                entityQueue.put(input)
                 break
         try:
             entities = entityQueue.get(True, 0.01)
@@ -101,9 +102,7 @@ def main():
             screen.addstr(e.getY(), e.getX(), e.getForm())
         screen.move(curses.LINES - 1, curses.COLS - 1)
         screen.refresh()
-
     game.join()
-
     terminateCurses(screen)
 
 

@@ -1,6 +1,7 @@
 import queue
 import event
 
+
 class eventsystem:
     def __init__(self):
         self.eventList = {}
@@ -16,4 +17,4 @@ class eventsystem:
         for evnt, queueList in self.eventList.items():
             if event.getName() == evnt.getName():
                 queueList.put(event)
-                break;
+                break
