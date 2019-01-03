@@ -33,7 +33,7 @@ class Game(Thread):
         self.entityQueue = entityQueue
         self.inputQueue = inputQueue
         self.screen = screen
-        self.world = world()
+        self.world = world(curses.LINES - 1, curses.COLS - 1)
 
     def run(self):
         self.mainChar = entity(self.world, 1, 1, 'X')
@@ -89,14 +89,10 @@ def main():
         except BaseException:
             pass
         screen.clear()
-        for i in range(0, curses.COLS - 1):
-            screen.addstr(0, i, '#')
-            screen.addstr(curses.LINES - 1, i, '#')
-        for i in range(0, curses.LINES - 1):
-            screen.addstr(i, 0, '#')
-            screen.addstr(i, curses.COLS - 1, '#')
         for e in world.getEntities():
             screen.addstr(e.getY(), e.getX(), e.getForm())
+        for t in world.getTerrain():
+            screen.addstr(t.getY(), t.getX(), t.getForm())
         screen.move(curses.LINES - 1, curses.COLS - 1)
         screen.refresh()
     game.join()
