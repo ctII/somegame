@@ -14,5 +14,5 @@ class entityMain(entity):
     def moveRight(self):
         pass
 
-    def moveLeft(self)
+    def moveLeft(self):
         pass
