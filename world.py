@@ -1,5 +1,7 @@
 from terrainBarrier import terrainBarrier
 
+#entire terrain system needs to be redone, getTerrainAt is currently just bruteforcing
+
 class world:
     def __init__(self, width, height):
         self.entities = []
@@ -15,6 +17,11 @@ class world:
 
     def getTerrain(self):
         return self.terrain
+
+    def getTerrainAt(self, posY, posX):
+        for terrain in self.terrain:
+            if terrain.getX() == posX and terrain.getY() == posY:
+                return terrain
 
     def getEntity(self, UUID):
         for entity in self.entities:
