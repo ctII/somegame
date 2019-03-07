@@ -19,4 +19,3 @@ class entityTest(entity):
             else:
                 self.posY += 1
                 self.up = True
-        pass
